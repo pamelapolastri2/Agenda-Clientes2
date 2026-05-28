@@ -150,6 +150,9 @@ function mostrar() {
 
                 <input value="${c.edad}" 
                     onchange="editar(${i}, 'edad', this.value)">
+                    <a href="tel:${c.telefono}">
+    <button>📞 Llamar</button>
+</a>
 
                 <button onclick="eliminar(${i})">Eliminar</button>
             </div>
