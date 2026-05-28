@@ -1,7 +1,10 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Agenda Pro</title><style>
+<title>Agenda de Clientes</title>
+
+<style>
 body {
     font-family: Arial;
     background: #e5ddd5;
@@ -13,6 +16,7 @@ body {
     color: white;
     padding: 15px;
     font-size: 20px;
+    text-align: center;
 }
 
 .container {
@@ -37,82 +41,108 @@ button {
     font-size: 16px;
 }
 
+.search {
+    background: white;
+    margin-bottom: 10px;
+}
+
 .cliente {
     background: #dcf8c6;
     padding: 10px;
     margin: 10px 0;
     border-radius: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
-.hora {
-    font-size: 12px;
-    color: gray;
-    text-align: right;
+.cliente img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
-.botones button {
-    width: auto;
-    margin-top: 5px;
-    background: #128C7E;
+.info {
+    flex: 1;
 }
-</style></head><body><div class="header">Agenda de Clientes 💬</div><div class="container">
+</style>
+</head>
+
+<body>
+
+<div class="header">Agenda de Clientes 💬</div>
+
+<div class="container">
+
+    <!-- BUSCADOR -->
+    <input class="search" id="buscar" placeholder="🔎 Buscar cliente..." onkeyup="mostrar()">
+
+    <!-- FORMULARIO -->
     <input id="nombre" placeholder="Nombre">
     <input id="telefono" placeholder="Teléfono">
     <input id="edad" placeholder="Edad">
-    <button onclick="guardar()">Guardar</button><div id="lista"></div>
+    <input id="foto" placeholder="URL de foto (opcional)">
 
-</div><script>
+    <button onclick="agregar()">Guardar</button>
+
+    <div id="lista"></div>
+</div>
+
+<script>
 let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
 
-function horaActual() {
-    let h = new Date();
-    return h.getHours() + ":" + h.getMinutes();
+function guardar() {
+    localStorage.setItem("clientes", JSON.stringify(clientes));
+}
+
+function agregar() {
+    let nombre = document.getElementById("nombre").value;
+    let telefono = document.getElementById("telefono").value;
+    let edad = document.getElementById("edad").value;
+    let foto = document.getElementById("foto").value;
+
+    clientes.push({
+        nombre,
+        telefono,
+        edad,
+        foto: foto || "https://i.imgur.com/6VBx3io.png"
+    });
+
+    guardar();
+    mostrar();
+
+    document.getElementById("nombre").value = "";
+    document.getElementById("telefono").value = "";
+    document.getElementById("edad").value = "";
+    document.getElementById("foto").value = "";
 }
 
 function mostrar() {
     let lista = document.getElementById("lista");
+    let filtro = document.getElementById("buscar").value.toLowerCase();
+
     lista.innerHTML = "";
 
-    clientes.forEach((c, i) => {
+    clientes
+    .filter(c => c.nombre.toLowerCase().includes(filtro))
+    .forEach((c, i) => {
+
         lista.innerHTML += `
         <div class="cliente">
-            <input value="${c.nombre}" onchange="editar(${i}, 'nombre', this.value)">
-            <input value="${c.telefono}" onchange="editar(${i}, 'telefono', this.value)">
-            <input value="${c.edad}" onchange="editar(${i}, 'edad', this.value)">
-            
-            <div class="hora">${c.hora || ""}</div>
-
-            <div class="botones">
-                <button onclick="eliminar(${i})">Eliminar</button>
+            <img src="${c.foto}">
+            <div class="info">
+                <b>${c.nombre}</b><br>
+                📞 ${c.telefono}<br>
+                🎂 ${c.edad}
             </div>
-        </div>`;
+        </div>
+        `;
     });
 }
 
-function guardar() {
-    let nombre = document.getElementById("nombre").value;
-    let telefono = document.getElementById("telefono").value;
-    let edad = document.getElementById("edad").value;
-
-    let hora = horaActual();
-
-    clientes.push({nombre, telefono, edad, hora});
-    localStorage.setItem("clientes", JSON.stringify(clientes));
-
-    mostrar();
-}
-
-function eliminar(i) {
-    clientes.splice(i, 1);
-    localStorage.setItem("clientes", JSON.stringify(clientes));
-    mostrar();
-}
-
-function editar(i, campo, valor) {
-    clientes[i][campo] = valor;
-    localStorage.setItem("clientes", JSON.stringify(clientes));
-}
-
 mostrar();
-</script></body>
+</script>
+
+</body>
 </html>
