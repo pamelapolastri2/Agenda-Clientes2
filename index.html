@@ -1,7 +1,7 @@
 <!DOCTYPE html><html>
 <head>
 <meta charset="UTF-8">
-<title>Agenda de Clientes</title><style>
+<title>Agenda Pro</title><style>
 body {
     font-family: Arial;
     background: #e5ddd5;
@@ -44,16 +44,18 @@ button {
     border-radius: 10px;
 }
 
-.botones {
-    margin-top: 5px;
+.hora {
+    font-size: 12px;
+    color: gray;
+    text-align: right;
 }
 
 .botones button {
     width: auto;
-    margin-right: 5px;
+    margin-top: 5px;
     background: #128C7E;
 }
-</style></head><body><div class="header">Agenda de Clientes</div><div class="container">
+</style></head><body><div class="header">Agenda de Clientes 💬</div><div class="container">
     <input id="nombre" placeholder="Nombre">
     <input id="telefono" placeholder="Teléfono">
     <input id="edad" placeholder="Edad">
@@ -62,6 +64,11 @@ button {
 </div><script>
 let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
 
+function horaActual() {
+    let h = new Date();
+    return h.getHours() + ":" + h.getMinutes();
+}
+
 function mostrar() {
     let lista = document.getElementById("lista");
     lista.innerHTML = "";
@@ -69,11 +76,13 @@ function mostrar() {
     clientes.forEach((c, i) => {
         lista.innerHTML += `
         <div class="cliente">
-            <b>${c.nombre}</b><br>
-            📞 ${c.telefono}<br>
-            🎂 ${c.edad}
+            <input value="${c.nombre}" onchange="editar(${i}, 'nombre', this.value)">
+            <input value="${c.telefono}" onchange="editar(${i}, 'telefono', this.value)">
+            <input value="${c.edad}" onchange="editar(${i}, 'edad', this.value)">
+            
+            <div class="hora">${c.hora || ""}</div>
+
             <div class="botones">
-                <button onclick="editar(${i})">Editar</button>
                 <button onclick="eliminar(${i})">Eliminar</button>
             </div>
         </div>`;
@@ -85,7 +94,9 @@ function guardar() {
     let telefono = document.getElementById("telefono").value;
     let edad = document.getElementById("edad").value;
 
-    clientes.push({nombre, telefono, edad});
+    let hora = horaActual();
+
+    clientes.push({nombre, telefono, edad, hora});
     localStorage.setItem("clientes", JSON.stringify(clientes));
 
     mostrar();
@@ -97,18 +108,9 @@ function eliminar(i) {
     mostrar();
 }
 
-function editar(i) {
-let nuevoNombre = prompt("Nuevo nombre:", clientes[i].nombre);
-let nuevoTelefono = prompt("Nuevo teléfono:", clientes[i].telefono);
-let nuevaEdad = prompt("Nueva edad:", clientes[i].edad);
-
-if (nuevoNombre) clientes[i].nombre = nuevoNombre;
-if (nuevoTelefono) clientes[i].telefono = nuevoTelefono;
-if (nuevaEdad) clientes[i].edad = nuevaEdad;
-
-localStorage.setItem("clientes", JSON.stringify(clientes));
-mostrar();
-
+function editar(i, campo, valor) {
+    clientes[i][campo] = valor;
+    localStorage.setItem("clientes", JSON.stringify(clientes));
 }
 
 mostrar();
