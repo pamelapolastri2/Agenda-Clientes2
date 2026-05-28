@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WhatsApp Clientes</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #ece5dd;
+            margin: 0;
+        }
+
+        header {
+            background: #075e54;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        #tabla {
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+            overflow-y: auto;
+            padding: 10px;
+            gap: 5px;
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .bubble {
+            padding: 8px 10px;
+            border-radius: 10px;
+            max-width: 70%;
+            font-size: 14px;
+            background: white;
+        }
+
+        .derecha .bubble {
+            background: #dcf8c6;
+        }
+
+        .mensaje {
+            display: flex;
+        }
+
+        .izquierda {
+            justify-content: flex-start;
+        }
+
+        .derecha {
+            justify-content: flex-end;
+        }
+
+        .bubble button {
+            margin-top: 5px;
+            border: none;
+            padding: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .acciones {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            padding: 10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        input {
+            padding: 8px;
+            flex: 1;
+        }
+
+        button.enviar {
+            background: #25d366;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body onload="cargar()">
+
+<header>💬 WhatsApp Clientes</header>
+
+<div id="tabla"></div>
+
+<div class="acciones">
+    <input id="nombre" placeholder="Nombre">
+    <input id="telefono" placeholder="Teléfono">
+    <input id="edad" placeholder="Edad">
+    <button class="enviar" onclick="agregar()">➤</button>
+</div>
+
+<script>
+
+let url = "https://localhost:7164/api/Clientes";
+
+function cargar() {
+    fetch(url)
+    .then(res => res.json())
+    .then(data => {
+
+        let chat = document.getElementById("tabla");
+        chat.innerHTML = "";
+
+        data.forEach((c) => {
+
+            let lado = c.id % 2 === 0 ? "izquierda" : "derecha";
+
+            chat.innerHTML += `
+            <div class="mensaje ${lado}">
+                <div class="bubble">
+                    <b>${c.nombre}</b><br>
+                    📞 ${c.telefono}<br>
+                    🎂 ${c.edad}<br>
+
+                    <button onclick='editar(${c.id}, "${c.nombre}", "${c.telefono}", ${c.edad})'>✏️</button>
+                    <button onclick="eliminar(${c.id})">🗑️</button>
+                </div>
+            </div>`;
+        });
+
+        chat.scrollTop = chat.scrollHeight;
+    });
+}
+
+function agregar() {
+
+    let cliente = {
+        nombre: document.getElementById("nombre").value,
+        telefono: document.getElementById("telefono").value,
+        edad: parseInt(document.getElementById("edad").value)
+    };
+
+    fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cliente)
+    })
+    .then(() => {
+        limpiar();
+        cargar();
+    });
+}
+
+function eliminar(id) {
+    fetch(url + "/" + id, {
+        method: "DELETE"
+    })
+    .then(() => cargar());
+}
+
+function editar(id, nombre, telefono, edad) {
+
+    let nuevoNombre = prompt("Nuevo nombre:", nombre);
+    let nuevoTelefono = prompt("Nuevo teléfono:", telefono);
+    let nuevaEdad = prompt("Nueva edad:", edad);
+
+    let cliente = {
+        id: id,
+        nombre: nuevoNombre,
+        telefono: nuevoTelefono,
+        edad: parseInt(nuevaEdad)
+    };
+
+    fetch(url + "/" + id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cliente)
+    })
+    .then(() => cargar());
+}
+
+function limpiar() {
+    document.getElementById("nombre").value = "";
+    document.getElementById("telefono").value = "";
+    document.getElementById("edad").value = "";
+}
+
+</script>
+
+</body>
+</html>
