@@ -15,8 +15,8 @@ body {
     background: #075E54;
     color: white;
     padding: 15px;
-    font-size: 20px;
     text-align: center;
+    font-size: 20px;
 }
 
 .container {
@@ -39,11 +39,11 @@ button {
     border-radius: 10px;
     color: white;
     font-size: 16px;
+    margin-top: 5px;
 }
 
 .search {
     background: white;
-    margin-bottom: 10px;
 }
 
 .cliente {
@@ -51,20 +51,12 @@ button {
     padding: 10px;
     margin: 10px 0;
     border-radius: 10px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
 }
 
-.cliente img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.info {
-    flex: 1;
+.actions button {
+    width: auto;
+    margin-right: 5px;
+    background: #128C7E;
 }
 </style>
 </head>
@@ -75,18 +67,16 @@ button {
 
 <div class="container">
 
-    <!-- BUSCADOR -->
-    <input class="search" id="buscar" placeholder="🔎 Buscar cliente..." onkeyup="mostrar()">
+<input id="buscar" class="search" placeholder="🔎 Buscar cliente..." onkeyup="mostrar()">
 
-    <!-- FORMULARIO -->
-    <input id="nombre" placeholder="Nombre">
-    <input id="telefono" placeholder="Teléfono">
-    <input id="edad" placeholder="Edad">
-    <input id="foto" placeholder="URL de foto (opcional)">
+<input id="nombre" placeholder="Nombre">
+<input id="telefono" placeholder="Teléfono">
+<input id="edad" placeholder="Edad">
 
-    <button onclick="agregar()">Guardar</button>
+<button onclick="agregar()">Guardar</button>
 
-    <div id="lista"></div>
+<div id="lista"></div>
+
 </div>
 
 <script>
@@ -97,25 +87,40 @@ function guardar() {
 }
 
 function agregar() {
-    let nombre = document.getElementById("nombre").value;
-    let telefono = document.getElementById("telefono").value;
-    let edad = document.getElementById("edad").value;
-    let foto = document.getElementById("foto").value;
-
     clientes.push({
-        nombre,
-        telefono,
-        edad,
-        foto: foto || "https://i.imgur.com/6VBx3io.png"
+        nombre: nombre.value,
+        telefono: telefono.value,
+        edad: edad.value
     });
 
     guardar();
+    limpiar();
     mostrar();
+}
 
-    document.getElementById("nombre").value = "";
-    document.getElementById("telefono").value = "";
-    document.getElementById("edad").value = "";
-    document.getElementById("foto").value = "";
+function limpiar() {
+    nombre.value = "";
+    telefono.value = "";
+    edad.value = "";
+}
+
+function eliminar(i) {
+    clientes.splice(i, 1);
+    guardar();
+    mostrar();
+}
+
+function editar(i) {
+    let nuevoNombre = prompt("Nombre:", clientes[i].nombre);
+    let nuevoTelefono = prompt("Teléfono:", clientes[i].telefono);
+    let nuevaEdad = prompt("Edad:", clientes[i].edad);
+
+    if (nuevoNombre) clientes[i].nombre = nuevoNombre;
+    if (nuevoTelefono) clientes[i].telefono = nuevoTelefono;
+    if (nuevaEdad) clientes[i].edad = nuevaEdad;
+
+    guardar();
+    mostrar();
 }
 
 function mostrar() {
@@ -130,11 +135,13 @@ function mostrar() {
 
         lista.innerHTML += `
         <div class="cliente">
-            <img src="${c.foto}">
-            <div class="info">
-                <b>${c.nombre}</b><br>
-                📞 ${c.telefono}<br>
-                🎂 ${c.edad}
+            <b>${c.nombre}</b><br>
+            📞 ${c.telefono}<br>
+            🎂 ${c.edad}
+
+            <div class="actions">
+                <button onclick="editar(${i})">Editar</button>
+                <button onclick="eliminar(${i})">Eliminar</button>
             </div>
         </div>
         `;
