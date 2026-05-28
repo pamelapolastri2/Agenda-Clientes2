@@ -98,11 +98,17 @@ function eliminar(i) {
 }
 
 function editar(i) {
-    let nuevoNombre = prompt("Nuevo nombre:", clientes[i].nombre);
-    if (nuevoNombre) clientes[i].nombre = nuevoNombre;
+let nuevoNombre = prompt("Nuevo nombre:", clientes[i].nombre);
+let nuevoTelefono = prompt("Nuevo teléfono:", clientes[i].telefono);
+let nuevaEdad = prompt("Nueva edad:", clientes[i].edad);
 
-    localStorage.setItem("clientes", JSON.stringify(clientes));
-    mostrar();
+if (nuevoNombre) clientes[i].nombre = nuevoNombre;
+if (nuevoTelefono) clientes[i].telefono = nuevoTelefono;
+if (nuevaEdad) clientes[i].edad = nuevaEdad;
+
+localStorage.setItem("clientes", JSON.stringify(clientes));
+mostrar();
+
 }
 
 mostrar();
