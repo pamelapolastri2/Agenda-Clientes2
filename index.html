@@ -1,78 +1,68 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html>
 <head>
-    <title>Agenda de Clientes</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #eef2f7;
-            padding: 20px;
-        }
+<meta charset="UTF-8">
+<title>Agenda de Clientes</title><style>
+body {
+    font-family: Arial;
+    background: #e5ddd5;
+    margin: 0;
+}
 
-        .container {
-            max-width: 500px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-        }
+.header {
+    background: #075E54;
+    color: white;
+    padding: 15px;
+    font-size: 20px;
+}
 
-        h2 {
-            text-align: center;
-        }
+.container {
+    padding: 10px;
+}
 
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-        }
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 10px;
+    border: none;
+}
 
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            margin-top: 10px;
-            cursor: pointer;
-        }
+button {
+    width: 100%;
+    padding: 10px;
+    background: #25D366;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+}
 
-        .cliente {
-            background: #f1f1f1;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 5px;
-        }
+.cliente {
+    background: #dcf8c6;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 10px;
+}
 
-        .acciones button {
-            width: 48%;
-            margin-top: 5px;
-        }
-    </style>
-</head>
+.botones {
+    margin-top: 5px;
+}
 
-<body>
-
-<div class="container">
-    <h2>Agenda de Clientes</h2>
-
+.botones button {
+    width: auto;
+    margin-right: 5px;
+    background: #128C7E;
+}
+</style></head><body><div class="header">Agenda de Clientes</div><div class="container">
     <input id="nombre" placeholder="Nombre">
     <input id="telefono" placeholder="Teléfono">
     <input id="edad" placeholder="Edad">
+    <button onclick="guardar()">Guardar</button><div id="lista"></div>
 
-    <button onclick="agregarCliente()">Agregar</button>
-
-    <div id="lista"></div>
-</div>
-
-<script>
+</div><script>
 let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
 
-function guardar() {
-    localStorage.setItem("clientes", JSON.stringify(clientes));
-}
-
-function mostrarClientes() {
+function mostrar() {
     let lista = document.getElementById("lista");
     lista.innerHTML = "";
 
@@ -80,52 +70,41 @@ function mostrarClientes() {
         lista.innerHTML += `
         <div class="cliente">
             <b>${c.nombre}</b><br>
-            Tel: ${c.telefono}<br>
-            Edad: ${c.edad}
-
-            <div class="acciones">
+            📞 ${c.telefono}<br>
+            🎂 ${c.edad}
+            <div class="botones">
                 <button onclick="editar(${i})">Editar</button>
                 <button onclick="eliminar(${i})">Eliminar</button>
             </div>
-        </div>
-        `;
+        </div>`;
     });
 }
 
-function agregarCliente() {
+function guardar() {
     let nombre = document.getElementById("nombre").value;
     let telefono = document.getElementById("telefono").value;
     let edad = document.getElementById("edad").value;
 
-    if(nombre === "") return;
+    clientes.push({nombre, telefono, edad});
+    localStorage.setItem("clientes", JSON.stringify(clientes));
 
-    clientes.push({ nombre, telefono, edad });
-    guardar();
-    mostrarClientes();
-
-    document.getElementById("nombre").value = "";
-    document.getElementById("telefono").value = "";
-    document.getElementById("edad").value = "";
+    mostrar();
 }
 
 function eliminar(i) {
     clientes.splice(i, 1);
-    guardar();
-    mostrarClientes();
+    localStorage.setItem("clientes", JSON.stringify(clientes));
+    mostrar();
 }
 
 function editar(i) {
-    let c = clientes[i];
+    let nuevoNombre = prompt("Nuevo nombre:", clientes[i].nombre);
+    if (nuevoNombre) clientes[i].nombre = nuevoNombre;
 
-    document.getElementById("nombre").value = c.nombre;
-    document.getElementById("telefono").value = c.telefono;
-    document.getElementById("edad").value = c.edad;
-
-    eliminar(i);
+    localStorage.setItem("clientes", JSON.stringify(clientes));
+    mostrar();
 }
 
-mostrarClientes();
-</script>
-
-</body>
+mostrar();
+</script></body>
 </html>
