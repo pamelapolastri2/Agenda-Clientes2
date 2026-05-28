@@ -154,11 +154,30 @@ function mostrar(){
 
         lista.innerHTML += `
         <div class="cliente">
-            <b>👩 ${c.nombre}</b><br>
-            📞 ${c.telefono}<br>
-            📍 ${c.zona}<br>
-            🛒 Campaña ${campania}: ${c.pedido}<br>
-            💰 Deuda: S/${c.deuda || 0}<br>
+
+            👩 Nombre:
+            <input value="${c.nombre}" 
+            onchange="data[${i}].nombre=this.value; guardar()">
+
+            📞 Teléfono:
+            <input value="${c.telefono}" 
+            onchange="data[${i}].telefono=this.value; guardar()">
+
+            📍 Zona:
+            <input value="${c.zona}" 
+            onchange="data[${i}].zona=this.value; guardar()">
+
+            🛒 Pedido:
+            <input value="${c.pedido}" 
+            onchange="data[${i}].pedido=this.value; guardar()">
+
+            💰 Deuda:
+            <input value="${c.deuda}" 
+            onchange="data[${i}].deuda=this.value; guardar()">
+
+            <br>
+
+            💄 Campaña: ${campania}
 
             <div class="actions">
                 <button onclick="whatsapp('${c.telefono}','${c.nombre}')">💬 WhatsApp</button>
@@ -167,6 +186,7 @@ function mostrar(){
                 </a>
                 <button onclick="eliminar(${i})">🗑 Eliminar</button>
             </div>
+
         </div>
         `;
     });
