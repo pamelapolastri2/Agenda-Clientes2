@@ -53,10 +53,14 @@ button {
     border-radius: 10px;
 }
 
-.actions button {
-    width: auto;
-    margin-right: 5px;
+.cliente input {
+    margin: 3px 0;
+    background: white;
+}
+
+.delete {
     background: #128C7E;
+    margin-top: 5px;
 }
 </style>
 </head>
@@ -67,7 +71,7 @@ button {
 
 <div class="container">
 
-<input id="buscar" class="search" placeholder="🔎 Buscar cliente..." onkeyup="mostrar()">
+<input id="buscar" class="search" placeholder="🔎 Buscar..." onkeyup="mostrar()">
 
 <input id="nombre" placeholder="Nombre">
 <input id="telefono" placeholder="Teléfono">
@@ -94,14 +98,10 @@ function agregar() {
     });
 
     guardar();
-    limpiar();
-    mostrar();
-}
-
-function limpiar() {
     nombre.value = "";
     telefono.value = "";
     edad.value = "";
+    mostrar();
 }
 
 function eliminar(i) {
@@ -110,17 +110,9 @@ function eliminar(i) {
     mostrar();
 }
 
-function editar(i) {
-    let nuevoNombre = prompt("Nombre:", clientes[i].nombre);
-    let nuevoTelefono = prompt("Teléfono:", clientes[i].telefono);
-    let nuevaEdad = prompt("Edad:", clientes[i].edad);
-
-    if (nuevoNombre) clientes[i].nombre = nuevoNombre;
-    if (nuevoTelefono) clientes[i].telefono = nuevoTelefono;
-    if (nuevaEdad) clientes[i].edad = nuevaEdad;
-
+function editarCampo(i, campo, valor) {
+    clientes[i][campo] = valor;
     guardar();
-    mostrar();
 }
 
 function mostrar() {
@@ -135,14 +127,16 @@ function mostrar() {
 
         lista.innerHTML += `
         <div class="cliente">
-            <b>${c.nombre}</b><br>
-            📞 ${c.telefono}<br>
-            🎂 ${c.edad}
+            <input value="${c.nombre}" 
+                onchange="editarCampo(${i}, 'nombre', this.value)">
 
-            <div class="actions">
-                <button onclick="editar(${i})">Editar</button>
-                <button onclick="eliminar(${i})">Eliminar</button>
-            </div>
+            <input value="${c.telefono}" 
+                onchange="editarCampo(${i}, 'telefono', this.value)">
+
+            <input value="${c.edad}" 
+                onchange="editarCampo(${i}, 'edad', this.value)">
+
+            <button class="delete" onclick="eliminar(${i})">Eliminar</button>
         </div>
         `;
     });
