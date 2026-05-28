@@ -19,8 +19,11 @@ body {
     font-size: 20px;
 }
 
-.container {
+.panel {
+    background: white;
+    margin: 10px;
     padding: 10px;
+    border-radius: 10px;
 }
 
 input {
@@ -38,39 +41,20 @@ button {
     border: none;
     border-radius: 10px;
     color: white;
-    font-size: 16px;
+    font-size: 14px;
     margin-top: 5px;
-}
-
-.search {
-    background: white;
 }
 
 .cliente {
     background: white;
+    margin: 10px;
     padding: 10px;
-    margin: 10px 0;
     border-radius: 10px;
     border-left: 5px solid #9c27b0;
 }
 
-.estado {
-    font-size: 12px;
-    margin-top: 5px;
-}
-
-.deuda {
-    color: red;
-    font-weight: bold;
-}
-
-.ok {
-    color: green;
-}
-
-.btns button {
+.actions button {
     width: auto;
-    margin-top: 5px;
     margin-right: 5px;
     background: #6a1b9a;
 }
@@ -79,29 +63,52 @@ button {
 
 <body>
 
-<div class="header">💄 Red Yanbal - Mis Consultoras</div>
+<div class="header">💄 Red Yanbal - Mi Negocio</div>
 
-<div class="container">
+<div class="panel">
+    📦 Campaña actual: <b id="campText"></b><br><br>
 
-<input id="buscar" class="search" placeholder="🔎 Buscar consultora..." onkeyup="mostrar()">
+    <input id="newCamp" placeholder="Cambiar campaña (ej: C09)">
+    <button onclick="setCampania()">Cambiar campaña</button>
 
-<input id="nombre" placeholder="Nombre">
-<input id="telefono" placeholder="Teléfono">
-<input id="zona" placeholder="Zona">
-<input id="pedido" placeholder="Pedido (ej: C08)">
-<input id="deuda" placeholder="Deuda (S/)">
+    <hr>
 
-<button onclick="agregar()">Agregar consultora</button>
+    <input id="buscar" placeholder="🔎 Buscar consultora..." onkeyup="mostrar()">
+</div>
+
+<div class="panel">
+
+    <input id="nombre" placeholder="Nombre">
+    <input id="telefono" placeholder="Teléfono (ej 51999999999)">
+    <input id="zona" placeholder="Zona">
+    <input id="pedido" placeholder="Pedido">
+    <input id="deuda" placeholder="Deuda S/">
+
+    <button onclick="agregar()">Agregar consultora</button>
+</div>
 
 <div id="lista"></div>
 
-</div>
-
 <script>
+let campania = localStorage.getItem("campania") || "C08";
 let data = JSON.parse(localStorage.getItem("yanbal")) || [];
 
 function guardar(){
     localStorage.setItem("yanbal", JSON.stringify(data));
+}
+
+function setCampania(){
+    let val = document.getElementById("newCamp").value;
+    if(val){
+        campania = val;
+        localStorage.setItem("campania", campania);
+        mostrarCampania();
+    }
+    document.getElementById("newCamp").value = "";
+}
+
+function mostrarCampania(){
+    document.getElementById("campText").innerText = campania;
 }
 
 function agregar(){
@@ -131,7 +138,7 @@ function eliminar(i){
 }
 
 function whatsapp(num, nombre){
-    let msg = `Hola ${nombre} 💄 te escribo por tu pedido Yanbal y coordinación de pago.`;
+    let msg = `Hola ${nombre} 💄 te escribo sobre tu pedido Yanbal de campaña ${campania}.`;
     window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`);
 }
 
@@ -147,17 +154,13 @@ function mostrar(){
 
         lista.innerHTML += `
         <div class="cliente">
-            <b>${c.nombre}</b><br>
+            <b>👩 ${c.nombre}</b><br>
             📞 ${c.telefono}<br>
             📍 ${c.zona}<br>
-            🛒 Pedido: ${c.pedido}<br>
+            🛒 Campaña ${campania}: ${c.pedido}<br>
+            💰 Deuda: S/${c.deuda || 0}<br>
 
-            💰 Deuda: 
-            <span class="${c.deuda>0?'deuda':'ok'}">
-                S/${c.deuda || 0}
-            </span>
-
-            <div class="btns">
+            <div class="actions">
                 <button onclick="whatsapp('${c.telefono}','${c.nombre}')">💬 WhatsApp</button>
                 <a href="tel:${c.telefono}">
                     <button>📞 Llamar</button>
@@ -169,6 +172,7 @@ function mostrar(){
     });
 }
 
+mostrarCampania();
 mostrar();
 </script>
 
