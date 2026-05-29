@@ -5,93 +5,114 @@
 <title>Red Yanbal</title>
 
 <style>
-body {
+body{
     font-family: Arial;
-    background: #e5ddd5;
-    margin: 0;
+    background:#e5ddd5;
+    margin:0;
 }
 
-.header {
-    background: #6a1b9a;
-    color: white;
-    padding: 15px;
-    text-align: center;
-    font-size: 20px;
+.header{
+    background:#6a1b9a;
+    color:white;
+    text-align:center;
+    padding:15px;
+    font-size:22px;
 }
 
-.panel {
-    background: white;
-    margin: 10px;
-    padding: 10px;
-    border-radius: 10px;
+.panel{
+    background:white;
+    margin:10px;
+    padding:15px;
+    border-radius:10px;
 }
 
-input {
-    width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 10px;
+input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:10px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
 }
 
-button {
-    width: 100%;
-    padding: 10px;
-    background: #9c27b0;
-    border: none;
-    border-radius: 10px;
-    color: white;
-    margin-top: 5px;
+button{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    background:#9c27b0;
+    color:white;
+    margin-top:5px;
+    font-size:15px;
 }
 
-.cliente {
-    background: white;
-    margin: 10px;
-    padding: 10px;
-    border-radius: 10px;
-    border-left: 5px solid #9c27b0;
+.cliente{
+    background:white;
+    margin:10px;
+    padding:15px;
+    border-radius:10px;
+    border-left:5px solid #9c27b0;
+}
+
+.acciones button{
+    width:auto;
+    margin-right:5px;
+    background:#6a1b9a;
+}
+
+.deuda{
+    color:red;
+    font-weight:bold;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">💄 Red Yanbal - Nube Firebase</div>
+<div class="header">
+💄 Red Yanbal - Firebase
+</div>
 
 <div class="panel">
 
-    📦 Campaña actual (local):
-    <input id="campania" placeholder="Ej: C09">
+    <input id="campania" placeholder="Campaña (Ej: C09)">
 
-    <hr>
+    <input id="nombre" placeholder="Nombre">
 
-    👩 Nombre:
-    <input id="nombre">
+    <input id="telefono" placeholder="Teléfono">
 
-    📞 Teléfono:
-    <input id="telefono">
+    <input id="zona" placeholder="Zona">
 
-    📍 Zona:
-    <input id="zona">
+    <input id="pedido" placeholder="Pedido">
 
-    🛒 Pedido:
-    <input id="pedido">
+    <input id="deuda" placeholder="Deuda">
 
-    💰 Deuda:
-    <input id="deuda">
+    <button onclick="agregar()">
+        ➕ Agregar consultora
+    </button>
 
-    <button onclick="agregar()">Agregar consultora</button>
 </div>
 
 <div id="lista"></div>
 
-<!-- 🔥 FIREBASE -->
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } 
-from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+// 🔥 FIREBASE
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 
-// 🔥 TU CONFIG FIREBASE
+import { 
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    doc,
+    updateDoc
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+// 🔥 CONFIGURACIÓN
 const firebaseConfig = {
   apiKey: "AIzaSyA6xgqelvFv2ap0tpMmEipSagLWcHaTUZc",
   authDomain: "mi-red-yanbal.firebaseapp.com",
@@ -101,10 +122,11 @@ const firebaseConfig = {
   appId: "1:82758334613:web:32c950a0414f6b63efc39c"
 };
 
+// 🔥 INICIAR FIREBASE
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let lista = document.getElementById("lista");
+const lista = document.getElementById("lista");
 
 // ➕ AGREGAR CONSULTORA
 window.agregar = async function(){
@@ -125,6 +147,12 @@ window.agregar = async function(){
         deuda
     });
 
+    document.getElementById("nombre").value = "";
+    document.getElementById("telefono").value = "";
+    document.getElementById("zona").value = "";
+    document.getElementById("pedido").value = "";
+    document.getElementById("deuda").value = "";
+
     mostrar();
 }
 
@@ -133,37 +161,105 @@ window.mostrar = async function(){
 
     lista.innerHTML = "";
 
-    let data = await getDocs(collection(db, "consultoras"));
+    const datos = await getDocs(collection(db, "consultoras"));
 
-    data.forEach((d)=>{
+    datos.forEach((d)=>{
 
         let c = d.data();
 
         lista.innerHTML += `
         <div class="cliente">
-            👩 ${c.nombre}<br>
-            📞 ${c.telefono}<br>
-            📍 ${c.zona}<br>
-            🛒 Campaña ${c.campania}: ${c.pedido}<br>
-            💰 Deuda: S/${c.deuda}<br>
 
-            <button onclick="eliminar('${d.id}')">🗑 Eliminar</button>
+            📦 Campaña:
+            <input 
+            value="${c.campania || ''}"
+            onchange="editar('${d.id}','campania',this.value)">
+
+            👩 Nombre:
+            <input 
+            value="${c.nombre || ''}"
+            onchange="editar('${d.id}','nombre',this.value)">
+
+            📞 Teléfono:
+            <input 
+            value="${c.telefono || ''}"
+            onchange="editar('${d.id}','telefono',this.value)">
+
+            📍 Zona:
+            <input 
+            value="${c.zona || ''}"
+            onchange="editar('${d.id}','zona',this.value)">
+
+            🛒 Pedido:
+            <input 
+            value="${c.pedido || ''}"
+            onchange="editar('${d.id}','pedido',this.value)">
+
+            💰 Deuda:
+            <input 
+            class="deuda"
+            value="${c.deuda || ''}"
+            onchange="editar('${d.id}','deuda',this.value)">
+
+            <div class="acciones">
+
+                <button onclick="whatsapp('${c.telefono}','${c.nombre}','${c.deuda}','${c.campania}')">
+                    💬 WhatsApp
+                </button>
+
+                <a href="tel:${c.telefono}">
+                    <button>
+                        📞 Llamar
+                    </button>
+                </a>
+
+                <button onclick="eliminar('${d.id}')">
+                    🗑 Eliminar
+                </button>
+
+            </div>
+
         </div>
         `;
     });
 }
 
+// ✏️ EDITAR
+window.editar = async function(id,campo,valor){
+
+    await updateDoc(doc(db,"consultoras",id),{
+        [campo]: valor
+    });
+
+}
+
 // 🗑 ELIMINAR
 window.eliminar = async function(id){
-    await deleteDoc(doc(db, "consultoras", id));
+
+    await deleteDoc(doc(db,"consultoras",id));
+
     mostrar();
 }
 
-// iniciar
+// 💬 WHATSAPP
+window.whatsapp = function(num,nombre,deuda,campania){
+
+    let mensaje =
+`Hola ${nombre} 💄
+Te escribo por tu pedido Yanbal.
+
+📦 Campaña: ${campania}
+💰 Deuda pendiente: S/${deuda}`;
+
+    window.open(
+`https://wa.me/${num}?text=${encodeURIComponent(mensaje)}`
+    );
+}
+
+// 🚀 INICIAR
 mostrar();
 
 </script>
 
 </body>
 </html>
-
