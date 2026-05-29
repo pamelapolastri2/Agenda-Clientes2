@@ -31,7 +31,6 @@ input {
     padding: 10px;
     margin: 5px 0;
     border-radius: 10px;
-    border: none;
 }
 
 button {
@@ -41,7 +40,6 @@ button {
     border: none;
     border-radius: 10px;
     color: white;
-    font-size: 14px;
     margin-top: 5px;
 }
 
@@ -52,149 +50,120 @@ button {
     border-radius: 10px;
     border-left: 5px solid #9c27b0;
 }
-
-.actions button {
-    width: auto;
-    margin-right: 5px;
-    background: #6a1b9a;
-}
 </style>
 </head>
 
 <body>
 
-<div class="header">💄 Red Yanbal - Mi Negocio</div>
+<div class="header">💄 Red Yanbal - Nube Firebase</div>
 
 <div class="panel">
-    📦 Campaña actual: <b id="campText"></b><br><br>
 
-    <input id="newCamp" placeholder="Cambiar campaña (ej: C09)">
-    <button onclick="setCampania()">Cambiar campaña</button>
+    📦 Campaña actual (local):
+    <input id="campania" placeholder="Ej: C09">
 
     <hr>
 
-    <input id="buscar" placeholder="🔎 Buscar consultora..." onkeyup="mostrar()">
-</div>
+    👩 Nombre:
+    <input id="nombre">
 
-<div class="panel">
+    📞 Teléfono:
+    <input id="telefono">
 
-    <input id="nombre" placeholder="Nombre">
-    <input id="telefono" placeholder="Teléfono (ej 51999999999)">
-    <input id="zona" placeholder="Zona">
-    <input id="pedido" placeholder="Pedido">
-    <input id="deuda" placeholder="Deuda S/">
+    📍 Zona:
+    <input id="zona">
+
+    🛒 Pedido:
+    <input id="pedido">
+
+    💰 Deuda:
+    <input id="deuda">
 
     <button onclick="agregar()">Agregar consultora</button>
 </div>
 
 <div id="lista"></div>
 
-<script>
-let campania = localStorage.getItem("campania") || "C08";
-let data = JSON.parse(localStorage.getItem("yanbal")) || [];
+<!-- 🔥 FIREBASE -->
+<script type="module">
 
-function guardar(){
-    localStorage.setItem("yanbal", JSON.stringify(data));
-}
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } 
+from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
-function setCampania(){
-    let val = document.getElementById("newCamp").value;
-    if(val){
-        campania = val;
-        localStorage.setItem("campania", campania);
-        mostrarCampania();
-    }
-    document.getElementById("newCamp").value = "";
-}
+// 🔥 TU CONFIG FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyA6xgqelvFv2ap0tpMmEipSagLWcHaTUZc",
+  authDomain: "mi-red-yanbal.firebaseapp.com",
+  projectId: "mi-red-yanbal",
+  storageBucket: "mi-red-yanbal.firebasestorage.app",
+  messagingSenderId: "82758334613",
+  appId: "1:82758334613:web:32c950a0414f6b63efc39c"
+};
 
-function mostrarCampania(){
-    document.getElementById("campText").innerText = campania;
-}
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-function agregar(){
-    data.push({
-        nombre: nombre.value,
-        telefono: telefono.value,
-        zona: zona.value,
-        pedido: pedido.value,
-        deuda: deuda.value
+let lista = document.getElementById("lista");
+
+// ➕ AGREGAR CONSULTORA
+window.agregar = async function(){
+
+    let campania = document.getElementById("campania").value;
+    let nombre = document.getElementById("nombre").value;
+    let telefono = document.getElementById("telefono").value;
+    let zona = document.getElementById("zona").value;
+    let pedido = document.getElementById("pedido").value;
+    let deuda = document.getElementById("deuda").value;
+
+    await addDoc(collection(db, "consultoras"), {
+        campania,
+        nombre,
+        telefono,
+        zona,
+        pedido,
+        deuda
     });
 
-    guardar();
-
-    nombre.value="";
-    telefono.value="";
-    zona.value="";
-    pedido.value="";
-    deuda.value="";
-
     mostrar();
 }
 
-function eliminar(i){
-    data.splice(i,1);
-    guardar();
-    mostrar();
-}
-
-function whatsapp(num, nombre){
-    let msg = `Hola ${nombre} 💄 te escribo sobre tu pedido Yanbal de campaña ${campania}.`;
-    window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`);
-}
-
-function mostrar(){
-    let lista = document.getElementById("lista");
-    let filtro = document.getElementById("buscar").value.toLowerCase();
+// 📄 MOSTRAR CONSULTORAS
+window.mostrar = async function(){
 
     lista.innerHTML = "";
 
-    data
-    .filter(c => c.nombre.toLowerCase().includes(filtro))
-    .forEach((c,i)=>{
+    let data = await getDocs(collection(db, "consultoras"));
+
+    data.forEach((d)=>{
+
+        let c = d.data();
 
         lista.innerHTML += `
         <div class="cliente">
+            👩 ${c.nombre}<br>
+            📞 ${c.telefono}<br>
+            📍 ${c.zona}<br>
+            🛒 Campaña ${c.campania}: ${c.pedido}<br>
+            💰 Deuda: S/${c.deuda}<br>
 
-            👩 Nombre:
-            <input value="${c.nombre}" 
-            onchange="data[${i}].nombre=this.value; guardar()">
-
-            📞 Teléfono:
-            <input value="${c.telefono}" 
-            onchange="data[${i}].telefono=this.value; guardar()">
-
-            📍 Zona:
-            <input value="${c.zona}" 
-            onchange="data[${i}].zona=this.value; guardar()">
-
-            🛒 Pedido:
-            <input value="${c.pedido}" 
-            onchange="data[${i}].pedido=this.value; guardar()">
-
-            💰 Deuda:
-            <input value="${c.deuda}" 
-            onchange="data[${i}].deuda=this.value; guardar()">
-
-            <br>
-
-            💄 Campaña: ${campania}
-
-            <div class="actions">
-                <button onclick="whatsapp('${c.telefono}','${c.nombre}')">💬 WhatsApp</button>
-                <a href="tel:${c.telefono}">
-                    <button>📞 Llamar</button>
-                </a>
-                <button onclick="eliminar(${i})">🗑 Eliminar</button>
-            </div>
-
+            <button onclick="eliminar('${d.id}')">🗑 Eliminar</button>
         </div>
         `;
     });
 }
 
-mostrarCampania();
+// 🗑 ELIMINAR
+window.eliminar = async function(id){
+    await deleteDoc(doc(db, "consultoras", id));
+    mostrar();
+}
+
+// iniciar
 mostrar();
+
 </script>
 
 </body>
 </html>
+
